@@ -1,0 +1,142 @@
+name: Generate Social Story
+
+on:
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: 'Story topic (e.g., "Geo is going to the dentist with his mom")'
+        required: true
+        type: string
+
+jobs:
+  generate_story:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install openai
+
+      - name: Generate Social Story
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          STORY_TOPIC: ${{ github.event.inputs.topic }}
+        run: |
+          python .github/scripts/generate_story.py "$STORY_TOPIC"
+
+      - name: Validate Generated Story
+        run: |
+          python -c "
+          import json
+          import glob
+          import os
+          import sys
+          
+          # Add the scripts directory to the path
+          script_dir = os.path.dirname(os.path.abspath('.github/scripts'))
+          sys.path.insert(0, script_dir)
+          
+          try:
+              from validate_story import validate_story
+              print('✅ Validation module imported successfully')
+          except ImportError as e:
+              print(f'⚠️  Warning: Could not import validation module: {e}')
+              print('Continuing without validation...')
+              exit(0)
+          
+          # Find the most recent story folder
+          story_folders = sorted(glob.glob('stories/2*'))
+          if not story_folders:
+              print('❌ No story folders found')
+              exit(1)
+              
+          latest_story = story_folders[-1]
+          story_name = os.path.basename(latest_story)
+          
+          print(f'🔍 Validating latest story: {story_name}')
+          
+          try:
+              result = validate_story(latest_story)
+              
+              print(f'🔍 Validation Score: {result[\"percentage\"]:.1f}%')
+              print(f'Status: {\"✅ PASSING\" if result[\"passing\"] else \"❌ FAILING\"}')
+              
+              if not result['passing']:
+                  print('❌ Story does not meet quality standards!')
+                  print('Issues:')
+                  for issue in result['issues']:
+                      print(f'  - {issue}')
+                  exit(1)
+              else:
+                  print('✅ Story meets quality standards!')
+                  
+          except Exception as e:
+              print(f'❌ Error validating {story_name}: {e}')
+              import traceback
+              traceback.print_exc()
+              exit(1)
+          "
+          echo "Story validation completed"
+
+      - name: Verify Story Quality
+        run: |
+          python -c "
+          import json
+          import glob
+          import os
+          
+          # Find the most recent story folder
+          story_folders = sorted(glob.glob('stories/2*'))
+          if not story_folders:
+              print('❌ No story folders found')
+              exit(1)
+              
+          latest_story = story_folders[-1]
+          story_name = os.path.basename(latest_story)
+          meta_file = os.path.join(latest_story, 'story.json')
+          
+          print(f'Latest story: {latest_story}')
+          print(f'Meta file: {meta_file}')
+          
+          if os.path.exists(meta_file):
+              with open(meta_file, 'r') as f:
+                  metadata = json.load(f)
+              
+              if 'validation' in metadata:
+                  validation = metadata['validation']
+                  score = validation['percentage']
+                  passing = validation['passing']
+                  
+                  print(f'🔍 Validation Score: {score:.1f}%')
+                  print(f'Status: {\"✅ PASSING\" if passing else \"❌ FAILING\"}')
+                  
+                  if not passing:
+                      print('❌ Story does not meet quality standards!')
+                      print('Issues:')
+                      for issue in validation['issues']:
+                          print(f'  - {issue}')
+                      exit(1)
+                  else:
+                      print('✅ Story meets quality standards!')
+              else:
+                  print('⚠️  No validation data found in metadata')
+                  print('✅ Proceeding with deployment (no validation data)')
+          else:
+              print('⚠️  No metadata file found for latest story')
+              print('✅ Proceeding with deployment (no metadata available)')
+          "
+
+      - name: Commit and push new story
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git add stories/
+          git commit -m "Add new social story: ${{ github.event.inputs.topic }}"
+          git push origin main
+

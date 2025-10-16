@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Social Stories Generator</title>
+  <link rel="stylesheet" href="shared/styles.css">
+  <style>
+    .hero {
+      text-align: center;
+      padding: 40px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 12px;
+      margin-bottom: 30px;
+    }
+
+    .hero h1 {
+      color: white;
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .hero p {
+      font-size: 1.3rem;
+      opacity: 0.95;
+    }
+
+    .search-bar {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 0 20px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 15px 20px;
+      font-size: 1.1rem;
+      border: 2px solid var(--border-color);
+      border-radius: var(--border-radius);
+      transition: var(--transition);
+    }
+
+    .search-input:focus {
+      border-color: var(--primary-color);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+    }
+
+    .filter-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .filter-tag {
+      padding: 8px 16px;
+      background: var(--bg-white);
+      border: 2px solid var(--border-color);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 0.9rem;
+    }
+
+    .filter-tag:hover {
+      border-color: var(--primary-color);
+      background: #F0F7FF;
+    }
+
+    .filter-tag.active {
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    .story-card {
+      background: var(--bg-white);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      padding: 25px;
+      transition: var(--transition);
+      cursor: pointer;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .story-card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-4px);
+    }
+
+    .story-card-title {
+      font-size: 1.5rem;
+      color: var(--primary-color);
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .story-card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 15px;
+      font-size: 0.9rem;
+      color: var(--text-light);
+    }
+
+    .story-card-meta span {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .story-card-topic {
+      font-size: 1.1rem;
+      color: var(--text-dark);
+      margin-bottom: 15px;
+      flex-grow: 1;
+    }
+
+    .story-card-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: auto;
+    }
+
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin: 30px 0;
+    }
+
+    .stat-card {
+      background: var(--bg-white);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: var(--primary-color);
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      font-size: 1rem;
+      color: var(--text-light);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-light);
+    }
+
+    .empty-state h2 {
+      color: var(--text-light);
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      .hero p {
+        font-size: 1.1rem;
+      }
+
+      .story-card-actions {
+        flex-direction: column;
+      }
+
+      .story-card-actions .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Hero Section -->
+    <div class="hero">
+      <h1>📚 AI Social Stories Generator</h1>
+      <p>Personalized, interactive social stories created with AI</p>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar" id="stats-bar">
+      <div class="stat-card">
+        <div class="stat-value" id="total-stories">0</div>
+        <div class="stat-label">Stories Created</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="total-pages">0</div>
+        <div class="stat-label">Total Pages</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="avg-pages">0</div>
+        <div class="stat-label">Avg Pages/Story</div>
+      </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="search-bar">
+      <input 
+        type="text" 
+        class="search-input" 
+        id="search-input" 
+        placeholder="🔍 Search stories by topic, title, or character..."
+        aria-label="Search stories"
+      >
+    </div>
+
+    <div class="filter-tags" id="filter-tags">
+      <span class="filter-tag active" data-filter="all">All Stories</span>
+      <span class="filter-tag" data-filter="recent">Recent</span>
+    </div>
+
+    <!-- Stories Grid -->
+    <div class="card-grid" id="stories-grid">
+      <!-- Stories will be loaded here -->
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" id="empty-state" style="display: none;">
+      <h2>📖 No Stories Yet</h2>
+      <p>Stories will appear here once they are generated.</p>
+      <p style="margin-top: 20px;">
+        <a href="https://github.com" class="btn btn-primary" target="_blank">
+          Generate Your First Story
+        </a>
+      </p>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading" id="loading-state">
+      Loading stories...
+    </div>
+  </div>
+
+  <script>
+    // Load and display stories
+    async function loadStories() {
+      const loadingState = document.getElementById('loading-state');
+      const emptyState = document.getElementById('empty-state');
+      const storiesGrid = document.getElementById('stories-grid');
+      
+      try {
+        const response = await fetch('stories/index.json');
+        
+        if (!response.ok) {
+          throw new Error('Failed to load stories index');
+        }
+        
+        const stories = await response.json();
+        
+        loadingState.style.display = 'none';
+        
+        if (stories.length === 0) {
+          emptyState.style.display = 'block';
+          return;
+        }
+        
+        // Update stats
+        updateStats(stories);
+        
+        // Sort by date (newest first)
+        stories.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        // Store globally for filtering
+        window.allStories = stories;
+        
+        // Display stories
+        displayStories(stories);
+        
+      } catch (error) {
+        console.error('Error loading stories:', error);
+        loadingState.style.display = 'none';
+        emptyState.style.display = 'block';
+      }
+    }
+
+    function updateStats(stories) {
+      const totalStories = stories.length;
+      const totalPages = stories.reduce((sum, story) => sum + story.pages, 0);
+      const avgPages = totalStories > 0 ? (totalPages / totalStories).toFixed(1) : 0;
+      
+      document.getElementById('total-stories').textContent = totalStories;
+      document.getElementById('total-pages').textContent = totalPages;
+      document.getElementById('avg-pages').textContent = avgPages;
+    }
+
+    function displayStories(stories) {
+      const storiesGrid = document.getElementById('stories-grid');
+      storiesGrid.innerHTML = '';
+      
+      if (stories.length === 0) {
+        document.getElementById('empty-state').style.display = 'block';
+        return;
+      }
+      
+      document.getElementById('empty-state').style.display = 'none';
+      
+      stories.forEach(story => {
+        const card = createStoryCard(story);
+        storiesGrid.appendChild(card);
+      });
+    }
+
+    function createStoryCard(story) {
+      const card = document.createElement('div');
+      card.className = 'story-card';
+      card.setAttribute('data-title', story.title.toLowerCase());
+      card.setAttribute('data-topic', story.topic.toLowerCase());
+      card.setAttribute('data-date', story.date);
+      
+      const formattedDate = new Date(story.date).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      
+      card.innerHTML = `
+        <div class="story-card-title">${escapeHtml(story.title)}</div>
+        <div class="story-card-meta">
+          <span>📅 ${formattedDate}</span>
+          <span>📄 ${story.pages} pages</span>
+        </div>
+        <div class="story-card-topic">
+          <strong>Topic:</strong> ${escapeHtml(story.topic)}
+        </div>
+        <div class="story-card-actions">
+          <a href="stories/${story.path}/" class="btn btn-primary">Read Story</a>
+          <a href="stories/${story.path}/interactive/quiz.js" class="btn btn-secondary" target="_blank">Quiz</a>
+        </div>
+      `;
+      
+      // Make entire card clickable
+      card.addEventListener('click', (e) => {
+        if (!e.target.classList.contains('btn')) {
+          window.location.href = `stories/${story.path}/`;
+        }
+      });
+      
+      return card;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Search functionality
+    document.getElementById('search-input').addEventListener('input', (e) => {
+      const searchTerm = e.target.value.toLowerCase();
+      const cards = document.querySelectorAll('.story-card');
+      
+      cards.forEach(card => {
+        const title = card.getAttribute('data-title');
+        const topic = card.getAttribute('data-topic');
+        
+        if (title.includes(searchTerm) || topic.includes(searchTerm)) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+
+    // Filter functionality
+    document.querySelectorAll('.filter-tag').forEach(tag => {
+      tag.addEventListener('click', (e) => {
+        // Update active state
+        document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+        e.target.classList.add('active');
+        
+        const filter = e.target.getAttribute('data-filter');
+        
+        if (filter === 'all') {
+          displayStories(window.allStories);
+        } else if (filter === 'recent') {
+          // Show stories from last 30 days
+          const thirtyDaysAgo = new Date();
+          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+          
+          const recentStories = window.allStories.filter(story => {
+            return new Date(story.date) >= thirtyDaysAgo;
+          });
+          
+          displayStories(recentStories);
+        }
+      });
+    });
+
+    // Load stories on page load
+    loadStories();
+  </script>
+</body>
+</html>
+
