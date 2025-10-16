@@ -1,2 +1,10 @@
-[]
-
+[
+  {
+    "date": "2025-01-01",
+    "slug": "example-story",
+    "title": "Going to the Park",
+    "topic": "Alex goes to the park with family",
+    "pages": 3,
+    "path": "example-story"
+  }
+]

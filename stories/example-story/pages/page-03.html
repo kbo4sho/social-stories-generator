@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page 3 - Going to the Park</title>
+  <link rel="stylesheet" href="../../../shared/styles.css">
+  <script src="../../../shared/reader.js"></script>
+</head>
+<body>
+  <div class="narrow-container">
+    <nav class="nav-bar no-print">
+      <a href="../index.html" class="btn btn-secondary">← Story Home</a>
+      <a href="../../../index.html" class="btn btn-secondary">All Stories</a>
+    </nav>
+
+    <main class="story-page">
+      <h1>🌳 Going to the Park</h1>
+      <div class="page-indicator">Page 3 of 3</div>
+
+      <div class="visual-scene" style="background: linear-gradient(to bottom, #87CEEB 0%, #FFE4B5 100%); position: relative; display: flex; align-items: center; justify-content: center;">
+        <div style="text-align: center; color: white; font-size: 3rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+          😊 🍎 💚
+        </div>
+      </div>
+
+      <div class="narration-text" id="narration-text">
+        After playing for a while, the family sits on a bench to have a snack. 
+        Alex drinks some water and eats an apple. Alex made a new friend at the playground!
+        They played together on the slide and laughed a lot. It was a wonderful day at the park.
+        When it's time to go home, Alex waves goodbye to the new friend and says, 
+        "I hope to see you at the park again!"
+      </div>
+
+      <div class="teaching-point">
+        <strong>Teaching Point:</strong> Going to the park can be a great way to exercise, 
+        have fun, and make new friends. It's important to rest and drink water when playing outside.
+      </div>
+
+      <div id="audio-controls-container"></div>
+
+      <div class="message message-success" style="margin-top: 20px;">
+        <strong>🎉 Story Complete!</strong> Great job reading this story. 
+        Now try the interactive activities to learn more!
+      </div>
+
+      <nav class="page-nav no-print">
+        <a href="page-02.html" class="btn btn-secondary">← Previous</a>
+        <span class="page-indicator">Page 3 of 3</span>
+        <a href="../index.html" class="btn btn-primary">Back to Story Home</a>
+      </nav>
+    </main>
+  </div>
+
+  <script>
+    const narrationText = document.getElementById('narration-text').textContent.trim();
+    const audioSrc = '../audio/page-03.mp3';
+    createReaderControls('audio-controls-container', narrationText, audioSrc);
+  </script>
+</body>
+</html>
+

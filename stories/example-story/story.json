@@ -1,0 +1,37 @@
+{
+  "generated_date": "2025-01-01",
+  "generated_timestamp": "2025-01-01T00:00:00",
+  "model": "example",
+  "topic": "Alex goes to the park with family",
+  "slug": "example-story",
+  "title": "Going to the Park",
+  "pages": 3,
+  "characters": ["Alex", "Mom", "Dad", "Little Sister"],
+  "settings": ["Home", "Park", "Playground"],
+  "learning_objectives": [
+    "Understanding park activities",
+    "Social interaction with other children",
+    "Following park rules and safety"
+  ],
+  "emotional_tone": "supportive and encouraging",
+  "tokens_used": 0,
+  "validation": {
+    "score": 10,
+    "max_score": 10,
+    "percentage": 100,
+    "passing": true,
+    "issues": [],
+    "warnings": [],
+    "details": {
+      "pages_found": 3,
+      "audio_files": 0,
+      "interactive_elements": 3,
+      "has_navigation": true,
+      "has_print_css": true
+    }
+  },
+  "tts_model": "example",
+  "tts_voice": "example",
+  "is_example": true
+}
+
