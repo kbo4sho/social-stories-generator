@@ -105,7 +105,7 @@ Set these as GitHub Secrets:
 ### Configuration Options
 
 In `.github/scripts/generate_story.py`:
-- `MODEL_NAME`: OpenAI model to use (default: "gpt-4")
+- `MODEL_NAME`: OpenAI model to use (default: "GPT-5")
 - `MIN_PAGES`: Minimum story pages (default: 5)
 - `MAX_PAGES`: Maximum story pages (default: 8)
 - `VALIDATION_THRESHOLD`: Minimum quality score % (default: 70)
@@ -169,7 +169,7 @@ MIT License - See LICENSE file for details
 ## Credits
 
 Built using:
-- OpenAI GPT-4 for story generation
+- OpenAI GPT-5 for story generation
 - OpenAI TTS API for audio narration
 - GitHub Actions for automation
 - GitHub Pages for hosting
